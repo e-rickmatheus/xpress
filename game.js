@@ -337,15 +337,18 @@
   let death = null;
   const tdr = { h: 0, v: 0, jumping: false, held: false, drop: false, ducking: false, animT: 0 };
   let keysDuck = false;
-  let runPromise=Promise.resolve(null), saving=false;
+  let runPromise=Promise.resolve(null), saving=false, analyticsStart=0;
+  const track=(name,params)=>window.XpressAnalytics?.track(name,params);
   function beginRun() {
+    analyticsStart=performance.now();
+    track('level_start',{level_name:'xpress_run'});
     runPromise=Board.request('/api/runs',{method:'POST'}).then(data=>data.id).catch(()=>null);
   }
   // Teach each action once per page visit, using the real game controls.
   let lesson=0, tutorialWaiting=false;
   function completeLesson(action) {
     const obstacle=obstacles.find(o=>o.tutorial===action&&!o.taught);
-    if(tutorialWaiting&&obstacle){obstacle.taught=true;tutorialWaiting=false;lesson++;}
+    if(tutorialWaiting&&obstacle){obstacle.taught=true;tutorialWaiting=false;lesson++;track('tutorial_step',{tutorial_action:action});}
   }
 
   function reset() {
@@ -690,6 +693,8 @@
     death = { kind: obstacle?.kind || 'mailbox', pose, startHeight: tdr.h,targetX };
     if(obstacle)obstacle.x=Math.max(obstacle.x||0,targetX+sprites.hit.w/2+12);
     state = 'over'; overTime = performance.now(); sndHit();
+    track('level_end',{level_name:'xpress_run',success:false,score,duration_seconds:Math.round((overTime-analyticsStart)/1000),obstacle_type:death.kind});
+    track('post_score',{score,level_name:'xpress_run'});
     if (score > hi) { hi = score; setHi(hi); }
     finalScoreEl.textContent = String(score).padStart(5, '0');
     saved = false;
@@ -725,6 +730,7 @@
     }catch(error){text(formMsg,error.message==='runOffline'?'runOffline':error.status===400?'invalidRun':'saveError');btnSave.disabled=false;nameInput.disabled=false;return;}
     finally{saving=false;btnRestart.disabled=false;}
     saved = true;
+    track('leaderboard_save',{score:finishedScore,...(res.rank?{rank:res.rank}:{})});
     try { localStorage.setItem(CFG.NAME_KEY, name); } catch (err) {}
     Board.render(res.id);
     text(formMsg,res.rank?'savedRank':'savedOutside',{rank:res.rank});

@@ -13,7 +13,9 @@
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
-    gtag('config', 'G-H3H8TXW40N');
+    if (['notsoxpress.com.br', 'www.notsoxpress.com.br', 'xpress-smoky.vercel.app'].includes(location.hostname)) {
+      gtag('config', 'G-H3H8TXW40N');
+    }
   </script>
 </head>
 <body>
@@ -38,6 +40,6 @@
     </section>
     <footer><div class="signature"><span class="brand-mark" role="img" aria-label="xpress"></span></div><p><span data-i18n="developed">Desenvolvido por</span> <a href="https://mathrick.com.br" target="_blank" rel="noopener noreferrer">MATHRICK LAB</a></p></footer>
   </main>
-  <script src="i18n.js"></script><script src="intro.js"></script><script src="game.js"></script>
+  <script src="i18n.js"></script><script src="analytics.js"></script><script src="intro.js"></script><script src="game.js"></script>
 </body>
 </html>
