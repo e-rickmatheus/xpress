@@ -336,7 +336,8 @@
   let flash = 0, lastHundred = 0, difficultyLevel = 0;
   const difficultyAtScore = value => Math.floor(Math.max(0,value)/1000);
   const gapForDifficulty = (base,level,currentSpeed) => level ? Math.max(currentSpeed*60*.72,base*Math.max(.58,1-level*.06)) : base;
-  let death = null;
+  let death = null, jumpDust=[];
+  const reducedEffects=matchMedia('(prefers-reduced-motion: reduce)').matches;
   const tdr = { h: 0, v: 0, jumping: false, held: false, drop: false, ducking: false, animT: 0 };
   let keysDuck = false;
   let runPromise=Promise.resolve(null), saving=false, analyticsStart=0;
@@ -356,7 +357,7 @@
   function reset() {
     speed = CFG.START_SPEED; distance = 0; score = 0; time = 0;
     night = 0; obstacles = []; spawnClear = CFG.CLEAR_TIME; lastHundred = 0; flash = 0;
-    death = null; difficultyLevel=0;
+    death = null; jumpDust=[]; difficultyLevel=0;
     Object.assign(tdr, { h: 0, v: 0, jumping: false, held: false, drop: false, ducking: keysDuck, animT: 0 });
     hi = getHi();
   }
@@ -479,6 +480,7 @@
   function startJump() {
     if (tdr.jumping || tdr.h > 0) return;
     tdr.jumping = true; tdr.v = CFG.JUMP_VELOCITY + speed / 10; tdr.drop = false;
+    if(!reducedEffects)jumpDust.push({time:performance.now(),x:CFG.CX});
     completeLesson('jump');
     sndJump();
   }
@@ -573,8 +575,31 @@
       drawTinted(s,-s.w/2,-s.h/2);
       ctx.restore();
     } else {
-      const s=sprites.hit;drawTinted(s,Math.round(x-s.w/2),GROUND-s.h+1);
+      const s=sprites.hit, sx=Math.round(x-s.w/2),sy=GROUND-s.h+1;drawTinted(s,sx,sy);
+      // Replace the indistinct flower head at its original position, keeping one flower.
+      const scale=CFG.TEODORO_HEIGHT/181,fx=sx+120*scale,fy=sy+12*scale;
+      ctx.fillStyle=rgb(mix(DAY.bg,NIGHT.bg,night));ctx.fillRect(fx-6,sy-1,13,12);
+      ctx.strokeStyle=rgb(fg);ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(fx,fy+5);ctx.lineTo(fx-7,fy+15);ctx.stroke();
+      for(let i=0;i<6;i++){const a=i*Math.PI/3;ctx.beginPath();ctx.arc(fx+Math.cos(a)*4,fy+Math.sin(a)*4,2.6,0,Math.PI*2);ctx.fill();ctx.stroke();}
+      ctx.fillStyle=rgb(fg);ctx.beginPath();ctx.arc(fx,fy,2.2,0,Math.PI*2);ctx.fill();
     }
+    drawGhost(fg);
+  }
+
+  function drawGhost(fg) {
+    const age=performance.now()-overTime-1100;
+    if(age<0||age>3100)return;
+    const progress=age/3100,x=death.targetX+Math.sin(progress*Math.PI*3)*5,y=GROUND-38-(reducedEffects?18:progress*130);
+    ctx.save();ctx.translate(Math.round(x),Math.round(y));ctx.globalAlpha=Math.min(1,age/250)*(1-progress)*.85;
+    ctx.fillStyle=rgb(mix(DAY.bg,NIGHT.bg,night));ctx.strokeStyle=rgb(fg);ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.moveTo(-9,17);ctx.lineTo(-9,0);ctx.quadraticCurveTo(-9,-11,0,-11);ctx.quadraticCurveTo(9,-11,9,0);ctx.lineTo(9,17);ctx.lineTo(5,13);ctx.lineTo(1,17);ctx.lineTo(-3,13);ctx.lineTo(-7,17);ctx.closePath();ctx.fill();ctx.stroke();
+    ctx.fillStyle=rgb(fg);ctx.fillRect(-4,-3,2,4);ctx.fillRect(3,-3,2,4);ctx.fillRect(0,5,2,2);
+    ctx.restore();
+  }
+
+  function drawDust(fg) {
+    const now=performance.now();jumpDust=jumpDust.filter(p=>now-p.time<420);
+    for(const puff of jumpDust){const p=(now-puff.time)/420;ctx.fillStyle=rgb(fg,(1-p)*.28);for(let i=0;i<5;i++){const x=puff.x-5-i*4-p*speed*8,y=GROUND-2-Math.sin(p*Math.PI)*5-i%2*2,size=Math.max(1,Math.round(5*(1-p)));ctx.fillRect(Math.round(x),Math.round(y),size,size);}}
   }
 
   function draw() {
@@ -621,6 +646,8 @@
       }
       else for (let i = 0; i < o.n; i++) drawMailbox(Math.round(o.x + i * o.unitW), Math.round(o.y), o.type);
     }
+
+    drawDust(fg);
 
     // Teodoro (cross-fade entre as versões dia/noite do sprite)
     const s = currentSprite();
