@@ -1,1 +1,1 @@
-{"framework":null,"buildCommand":"npm run build:vercel","outputDirectory":"public"}
+{"framework":null,"buildCommand":"npm run build:vercel","outputDirectory":"public","rewrites":[{"source":"/","has":[{"type":"host","value":"painel.notsoxpress.com.br"}],"destination":"/painel.html"}]}
