@@ -1,0 +1,10 @@
+node_modules/
+.sites-runtime/
+.vercel-source/
+public/
+.vercel/
+.env*
+teodoro-run.tar.gz
+checks/visual.html
+checks/visual-game.js
+tmp/

@@ -1,0 +1,13 @@
+{
+  "private": true,
+  "scripts": {
+    "build": "node scripts/build.cjs",
+    "db:generate": "drizzle-kit generate",
+    "test": "node checks/game.test.cjs && node checks/online.test.mjs",
+    "build:vercel": "node scripts/build-vercel.cjs"
+  },
+  "devDependencies": {
+    "drizzle-kit": "0.31.10",
+    "drizzle-orm": "0.45.2"
+  }
+}

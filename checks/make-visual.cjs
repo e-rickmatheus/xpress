@@ -1,0 +1,15 @@
+const fs=require('fs');
+let html=fs.readFileSync('index.html','utf8').replace('<head>','<head><base href="../">').replace('<script src="game.js"></script>', '<section class="panel"><h2>Verificação visual</h2><button id="qaEagle">COLISÃO COM ÁGUIA</button><button id="qaMail">COLISÃO COM CAIXA</button><button id="qaPlane">COLISÃO COM AVIÃO</button><button id="qaScene">VER OBSTÁCULOS</button><canvas id="qaSprites" width="800" height="320"></canvas></section><script src="checks/visual-game.js"></script>');
+fs.writeFileSync('checks/visual.html',html);
+let js=fs.readFileSync('game.js','utf8');
+js=js.replace("state = 'ready'; })",`state = 'ready';
+const qa=document.getElementById('qaSprites'),g=qa.getContext('2d');g.imageSmoothingEnabled=false;g.fillStyle='#fff';g.fillRect(0,0,800,320);g.fillStyle='#333';g.font='12px monospace';
+runFrames.forEach((s,i)=>{g.drawImage(s.day,10+i*110,20,s.w*2,s.h*2);g.fillText('RUN '+(i+1),10+i*110,145)});
+duckFrames.forEach((s,i)=>{g.drawImage(s.day,10+i*110,170,s.w*1.7,s.h*1.7);g.fillText('DUCK '+(i+1),10+i*110,245)});
+g.drawImage(eagleSprites.up.day,20,255,112,80);g.drawImage(eagleSprites.down.day,155,255,112,80);g.drawImage(eagleSprites.front.day,300,255);g.drawImage(mailboxSprites.postal.day,480,255,44,60);
+document.getElementById('qaEagle').addEventListener('click',()=>{reset();state='running';score=321;obstacles=[{kind:'eagle',x:85,y:GROUND-50,w:EAGLE.w,h:EAGLE.h,frame:0}];gameOver(obstacles[0]);});
+document.getElementById('qaScene').addEventListener('click',()=>{reset();state='ready';form.hidden=true;obstacles=[{kind:'mailbox',type:'postal',n:1,x:240,y:GROUND-MAILBOXES.postal.h+MAILBOXES.postal.groundOffset,w:29,h:40,unitW:29},{kind:'mailbox',type:'large',n:1,x:340,y:GROUND-46,w:30,h:46,unitW:30},{kind:'eagle',x:440,y:GROUND-90,w:EAGLE.w,h:EAGLE.h,frame:0},{kind:'plane',x:560,y:GROUND-45,w:PLANE.w,h:PLANE.h,frame:0},{kind:'plane',x:650,y:GROUND-70,w:PLANE.w,h:PLANE.h,frame:1}]});
+document.getElementById('qaPlane').addEventListener('click',()=>{reset();state='running';score=101;obstacles=[{kind:'plane',x:80,y:GROUND-30,w:PLANE.w,h:PLANE.h,frame:0}];gameOver(obstacles[0]);});
+document.getElementById('qaMail').addEventListener('click',()=>{reset();state='running';score=123;obstacles=[{kind:'mailbox',type:'large',n:1,x:82,y:GROUND-46,w:30,h:46,unitW:30}];gameOver(obstacles[0]);});
+})`);
+fs.writeFileSync('checks/visual-game.js',js);

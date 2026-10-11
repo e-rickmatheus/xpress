@@ -1,0 +1,10 @@
+node_modules
+.git
+.openai
+.sites-runtime
+.vercel-source
+dist
+tmp
+checks/visual.html
+checks/visual-game.js
+teodoro-run.tar.gz
