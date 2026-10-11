@@ -334,7 +334,7 @@
   let speed, distance, score, hi, night /* 0..1 */, time, overTime;
   let obstacles, clouds, stars, groundBits, spawnClear, lastGapEnd;
   let flash = 0, lastHundred = 0, difficultyLevel = 0;
-  const difficultyAtScore = value => Math.floor(Math.max(0,value)/1000);
+  const difficultyAtScore = value => Math.floor(Math.max(0,value)/500);
   const gapForDifficulty = (base,level,currentSpeed) => level ? Math.max(currentSpeed*60*.72,base*Math.max(.58,1-level*.06)) : base;
   let death = null, jumpDust=[];
   const reducedEffects=matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -480,7 +480,7 @@
   function startJump() {
     if (tdr.jumping || tdr.h > 0) return;
     tdr.jumping = true; tdr.v = CFG.JUMP_VELOCITY + speed / 10; tdr.drop = false;
-    if(!reducedEffects)jumpDust.push({time:performance.now(),x:CFG.CX});
+    if(!reducedEffects)jumpDust.push({time:performance.now(),x:CFG.CX,kind:'jump'});
     completeLesson('jump');
     sndJump();
   }
@@ -501,7 +501,7 @@
       if (!tdr.held && tdr.h >= CFG.MIN_JUMP_HEIGHT && tdr.v > CFG.DROP_VELOCITY) tdr.v = CFG.DROP_VELOCITY;
       tdr.h += tdr.v * (tdr.drop ? CFG.SPEED_DROP : 1) * dt;
       tdr.v -= CFG.GRAVITY * dt;
-      if (tdr.h <= 0) { tdr.h = 0; tdr.v = 0; tdr.jumping = false; tdr.drop = false; }
+      if (tdr.h <= 0) { if(!reducedEffects)jumpDust.push({time:performance.now(),x:CFG.CX,kind:'land'});tdr.h = 0; tdr.v = 0; tdr.jumping = false; tdr.drop = false; }
     }
     const assistedDuck=teaching?.tutorial==='duck'&&teaching.taught&&teaching.x+teaching.w>CFG.CX-30;
     tdr.ducking = (keysDuck||assistedDuck) && tdr.h === 0;
@@ -598,8 +598,15 @@
   }
 
   function drawDust(fg) {
-    const now=performance.now();jumpDust=jumpDust.filter(p=>now-p.time<420);
-    for(const puff of jumpDust){const p=(now-puff.time)/420;ctx.fillStyle=rgb(fg,(1-p)*.28);for(let i=0;i<5;i++){const x=puff.x-5-i*4-p*speed*8,y=GROUND-2-Math.sin(p*Math.PI)*5-i%2*2,size=Math.max(1,Math.round(5*(1-p)));ctx.fillRect(Math.round(x),Math.round(y),size,size);}}
+    const now=performance.now();jumpDust=jumpDust.filter(p=>now-p.time<(p.kind==='jump'?520:420));
+    for(const puff of jumpDust){
+      const jump=puff.kind==='jump',p=(now-puff.time)/(jump?520:420);
+      ctx.fillStyle=rgb(fg,(1-p)*(jump?.7:.28));
+      if(jump){
+        for(let i=0;i<9;i++){const side=i%2?1:-1,spread=6+Math.floor(i/2)*4+p*24;const x=puff.x+side*spread-p*speed*5,y=GROUND-4-Math.sin(p*Math.PI)*(12+i%3*5),size=Math.max(1,Math.round((7-i%3)*(1-p)));ctx.fillRect(Math.round(x),Math.round(y),size,size);}
+        for(let i=0;i<3;i++)ctx.fillRect(Math.round(puff.x-7+i*7-p*speed*4),Math.round(GROUND-8-p*28),2,Math.max(1,Math.round(9*(1-p))));
+      }else for(let i=0;i<5;i++){const x=puff.x-5-i*4-p*speed*8,y=GROUND-2-Math.sin(p*Math.PI)*5-i%2*2,size=Math.max(1,Math.round(5*(1-p)));ctx.fillRect(Math.round(x),Math.round(y),size,size);}
+    }
   }
 
   function draw() {
@@ -865,3 +872,4 @@
       state = 'ready'; })
     .catch(assetError);
 })();
+
