@@ -333,7 +333,9 @@
   let state = 'loading'; // loading | ready | running | over
   let speed, distance, score, hi, night /* 0..1 */, time, overTime;
   let obstacles, clouds, stars, groundBits, spawnClear, lastGapEnd;
-  let flash = 0, lastHundred = 0;
+  let flash = 0, lastHundred = 0, difficultyLevel = 0;
+  const difficultyAtScore = value => Math.floor(Math.max(0,value)/1000);
+  const gapForDifficulty = (base,level,currentSpeed) => level ? Math.max(currentSpeed*60*.72,base*Math.max(.58,1-level*.06)) : base;
   let death = null;
   const tdr = { h: 0, v: 0, jumping: false, held: false, drop: false, ducking: false, animT: 0 };
   let keysDuck = false;
@@ -354,7 +356,7 @@
   function reset() {
     speed = CFG.START_SPEED; distance = 0; score = 0; time = 0;
     night = 0; obstacles = []; spawnClear = CFG.CLEAR_TIME; lastHundred = 0; flash = 0;
-    death = null;
+    death = null; difficultyLevel=0;
     Object.assign(tdr, { h: 0, v: 0, jumping: false, held: false, drop: false, ducking: keysDuck, animT: 0 });
     hi = getHi();
   }
@@ -384,7 +386,7 @@
       o.gap=300;obstacles.push(o);return;
     }
     const flightKind = flightKindAtScore(score);
-    if (flightKind === 'eagle' || (score >= 80 && Math.random() < 0.38)) {
+    if (flightKind === 'eagle' || (score >= 80 && Math.random() < Math.min(.65,.38+difficultyLevel*.035))) {
       const def=flightKind==='eagle'?EAGLE:PLANE;
       const lvl=def.levels[randInt(0,def.levels.length-1)];
       o = { kind:flightKind,x:W+10,y:GROUND-lvl-def.h,w:def.w,h:def.h,
@@ -392,12 +394,13 @@
     } else {
       const type = ['small', 'large', 'postal'][randInt(0, 2)];
       const def = MAILBOXES[type];
-      const n = randInt(1, speed < 8 ? 2 : 3);
+      const minimum = difficultyLevel>=3 && Math.random()<.45 ? 2 : 1;
+      const n = randInt(minimum, speed < 8 ? 2 : 3);
       o = { kind: 'mailbox', type, n, x: W + 10, w: def.w * n, h: def.h, y: GROUND - def.h + (def.groundOffset || 0), unitW: def.w,
             off: 0, minGap: def.minGap };
     }
-    const minGap = Math.round(o.w * speed + o.minGap * 0.6);
-    o.gap = rand(minGap, minGap * 1.5);
+    const minGap = Math.round(gapForDifficulty(o.w * speed + o.minGap * 0.6,difficultyLevel,speed));
+    o.gap = rand(minGap, minGap * Math.max(1.15,1.5-difficultyLevel*.035));
     obstacles.push(o);
   }
 
@@ -434,6 +437,8 @@
   const spriteRect = s => ({ x: Math.round(CFG.CX - s.w / 2), y: Math.round(GROUND - tdr.h - s.h + 1), w: s.w, h: s.h });
 
   function collides(o) {
+    // The small mailbox is a duck-or-jump obstacle; larger boxes still require jumping.
+    if(o.kind==='mailbox'&&o.type==='small'&&tdr.ducking&&tdr.h===0)return false;
     const s = currentSprite(), r = spriteRect(s);
     if (o.kind === 'eagle' || o.kind === 'plane') {
       const mask = o.kind==='plane' ? planeSprites[0] : o.frame ? eagleSprites.down : eagleSprites.up;
@@ -500,9 +505,11 @@
     tdr.ducking = (keysDuck||assistedDuck) && tdr.h === 0;
 
     // velocidade / pontuação
-    if (speed < CFG.MAX_SPEED) speed = Math.min(CFG.MAX_SPEED, speed + CFG.ACCEL * dt);
+    if (speed < CFG.MAX_SPEED) speed = Math.min(CFG.MAX_SPEED, speed + CFG.ACCEL * (1+difficultyLevel*.12) * dt);
     distance += speed * dt;
     score = Math.floor(distance * CFG.SCORE_COEF);
+    const nextDifficulty=difficultyAtScore(score);
+    if(nextDifficulty>difficultyLevel){difficultyLevel=nextDifficulty;speed=Math.min(CFG.MAX_SPEED,speed+.35);flash=900;sndPoint();}
 
     if (score > 0 && score % 100 === 0 && score !== lastHundred) {
       lastHundred = score; flash = 900; sndPoint();
