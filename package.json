@@ -3,7 +3,7 @@
   "scripts": {
     "build": "node scripts/build.cjs",
     "db:generate": "drizzle-kit generate",
-    "test": "node checks/game.test.cjs && node checks/online.test.mjs",
+    "test": "node checks/game.test.cjs && node checks/online.test.mjs && node checks/vercel-api.test.cjs",
     "build:vercel": "node scripts/build-vercel.cjs"
   },
   "devDependencies": {
