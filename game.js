@@ -438,8 +438,8 @@
   const spriteRect = s => ({ x: Math.round(CFG.CX - s.w / 2), y: Math.round(GROUND - tdr.h - s.h + 1), w: s.w, h: s.h });
 
   function collides(o) {
-    // The small mailbox is a duck-or-jump obstacle; larger boxes still require jumping.
-    if(o.kind==='mailbox'&&o.type==='small'&&tdr.ducking&&tdr.h===0)return false;
+    // Both sizes of the post-mounted mailbox allow ducking; the floor box requires jumping.
+    if(o.kind==='mailbox'&&(o.type==='small'||o.type==='large')&&tdr.ducking&&tdr.h===0)return false;
     const s = currentSprite(), r = spriteRect(s);
     if (o.kind === 'eagle' || o.kind === 'plane') {
       const mask = o.kind==='plane' ? planeSprites[0] : o.frame ? eagleSprites.down : eagleSprites.up;
