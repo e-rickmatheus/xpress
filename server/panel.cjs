@@ -35,13 +35,17 @@ async function handle(req,res){
     if(!session||!/^[a-f0-9]{64}$/.test(session)||!await redis('GET',prefix+'session:'+session))return reply(res,401,{error:'Entre para acessar o painel.'});
     if(action==='logout'&&req.method==='POST'){await redis('DEL',prefix+'session:'+session);res.setHeader('Set-Cookie','xpress_owner=; HttpOnly; Secure; SameSite=Strict; Path=/api/panel; Max-Age=0');return reply(res,200,{ok:true})}
     if(req.method==='GET'){
-      const [config,clients]=await Promise.all([redis('GET',prefix+'config'),redis('HVALS',prefix+'clients')]);
-      return reply(res,200,{config:JSON.parse(config||'{"mode":"coming","launchUrl":""}'),clients:clients.map(s=>JSON.parse(s))});
+      const [config,clients,bookmarks]=await Promise.all([redis('GET',prefix+'config'),redis('HVALS',prefix+'clients'),redis('HVALS',prefix+'bookmarks')]);
+      return reply(res,200,{config:JSON.parse(config||'{"mode":"coming","launchUrl":""}'),clients:clients.map(s=>JSON.parse(s)),bookmarks:bookmarks.map(s=>JSON.parse(s))});
     }
     if(action==='config'){
       if(!['coming','launch'].includes(data.mode)||typeof data.launchUrl!=='string'||data.launchUrl.length>2000||(data.launchUrl&&!validUrl(data.launchUrl))||(data.mode==='launch'&&!data.launchUrl))return reply(res,400,{error:'Informe um endereço HTTPS válido para a página Launch.'});
       if(data.launchUrl){const u=new URL(data.launchUrl);if(u.hostname==='painel.notsoxpress.com.br'||(['notsoxpress.com.br','www.notsoxpress.com.br'].includes(u.hostname)&&u.pathname==='/'))return reply(res,400,{error:'Use o endereço da página Launch, sem apontar para o painel ou para a página inicial atual.'});}
       await redis('SET',prefix+'config',JSON.stringify({mode:data.mode,launchUrl:data.launchUrl}));return reply(res,200,{ok:true});
+    }
+    if(action==='bookmark'){
+      if(typeof data.name!=='string'||!data.name.trim()||data.name.length>200||typeof data.url!=='string'||data.url.length>2000||!validUrl(data.url)||(data.id&&!/^[a-f0-9]{24}$/.test(data.id)))return reply(res,400,{error:'Informe o nome e um endereço HTTPS válido.'});
+      const id=data.id||randomBytes(12).toString('hex');await redis('HSET',prefix+'bookmarks',id,JSON.stringify({id,name:data.name.trim(),url:data.url.trim(),updatedAt:Date.now()}));return reply(res,200,{ok:true,id});
     }
     if(action==='client'){
       const fields=['company','responsible','contact','drive'];
