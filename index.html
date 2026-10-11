@@ -3,19 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Sua marca ficou offline tempo demais. A Xpress está chegando para colocá-la online. Jogue enquanto nosso novo site fica pronto.">
-  <title>Xpress — em breve</title>
+  <meta name="description" content="Sua marca ficou offline tempo demais. A xpress está chegando para colocá-la online. Jogue enquanto nosso novo site fica pronto.">
+  <title>xpress — em breve</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="intro" id="intro" aria-hidden="true"><svg class="intro-plane" viewBox="0 0 130 60" fill="none"><path d="M5 24 121 5 46 54 37 34 5 24Z M37 34 121 5 46 43 46 54 M37 34 37 47 46 43" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/><path d="M0 39h16M2 48h10" stroke="currentColor" stroke-width="2"/></svg><span class="brand-mark intro-mark"></span></div>
   <main class="wrap">
-    <header class="masthead"><nav class="languages" aria-label="Idioma" data-i18n-label="language"><button type="button" data-language="pt" aria-pressed="true">PT</button><button type="button" data-language="es" aria-pressed="false">ES</button><button type="button" data-language="en" aria-pressed="false">EN</button></nav><a class="brand-mark" href="./" aria-label="Xpress, início" data-i18n-label="home"></a><span class="sr-only" data-i18n="soon">Xpress — novo site em breve</span></header>
-    <section class="play-area" aria-label="Jogo da Xpress">
-      <div class="game-shell"><div class="game-heading"><span data-i18n="heading">ENQUANTO O SITE NÃO CHEGA...</span><span id="gameStatus" role="status">CARREGANDO</span></div><canvas id="game" width="800" height="260" tabindex="0" data-i18n-label="gameLabel" aria-label="Jogo Xpress. Espaço ou seta para cima pula; seta para baixo abaixa. Toque para jogar."></canvas><p id="loadError" role="alert" hidden></p></div>
+    <header class="masthead"><nav class="languages" aria-label="Idioma" data-i18n-label="language"><button type="button" data-language="pt" aria-pressed="true">PT</button><button type="button" data-language="es" aria-pressed="false">ES</button><button type="button" data-language="en" aria-pressed="false">EN</button></nav><a class="brand-mark" href="./" aria-label="xpress, início" data-i18n-label="home"></a><span class="sr-only" data-i18n="soon">xpress — novo site em breve</span></header>
+    <section class="play-area" aria-label="Jogo da xpress">
+      <div class="game-shell"><div class="game-heading"><span data-i18n="heading">ENQUANTO O SITE NÃO CHEGA...</span><span id="gameStatus" role="status">CARREGANDO</span></div><canvas id="game" width="800" height="260" tabindex="0" data-i18n-label="gameLabel" aria-label="Jogo xpress. Espaço ou seta para cima pula; seta para baixo abaixa. Toque para jogar."></canvas><p id="loadError" role="alert" hidden></p></div>
       <div class="hint"><div class="key-guide" id="touchControls"><div class="keyboard-only"><kbd class="keycap space-key" data-i18n="space">ESPAÇO</kbd><span data-i18n="or">ou</span></div><button id="btnJump" type="button" class="control-key"><span class="keycap" aria-hidden="true">↑</span><strong data-i18n="jump">PULAR</strong></button><button id="btnDuck" type="button" class="control-key"><span class="keycap" aria-hidden="true">↓</span><strong data-i18n="duck">ABAIXAR</strong></button></div><p data-i18n="hold">Segure para pular mais alto.</p></div>
     </section>
-    <section class="brand-copy"><h1 data-i18n="copy">Sua marca ficou <strong>OFFLINE</strong><br>tempo demais!<br>Vamos colocá-la <strong>ONLINE.</strong></h1><a class="cta" id="contactCta" href="https://wa.me/553193083060?text=Ol%C3%A1!%20Vim%20pelo%20site%20da%20Xpress%20e%20gostaria%20de%20conversar%20sobre%20minha%20marca." target="_blank" rel="noopener noreferrer" data-i18n="cta">VAMOS CONVERSAR</a></section>
+    <section class="brand-copy"><h1 data-i18n="copy">Sua marca ficou <strong>OFFLINE</strong><br>tempo demais!<br>Vamos colocá-la <strong>ONLINE.</strong></h1><a class="cta" id="contactCta" href="https://wa.me/553193083060?text=Ol%C3%A1!%20Vim%20pelo%20site%20da%20xpress%20e%20gostaria%20de%20conversar%20sobre%20minha%20marca." target="_blank" rel="noopener noreferrer" data-i18n="cta">VAMOS CONVERSAR</a></section>
     <section class="panels" aria-label="Pontuações">
       <form id="scoreForm" class="panel" hidden autocomplete="off">
         <h2 data-i18n="register">Registre sua marca.</h2>
@@ -27,7 +28,7 @@
       </form>
       <details class="panel board" id="boardPanel"><summary>TOP 10</summary><ol id="leaderboard"></ol><p id="boardMsg" class="name-help" role="status"></p><button id="boardRefresh" type="button" class="secondary" data-i18n="refresh">ATUALIZAR RANKING</button></details>
     </section>
-    <footer><div class="signature"><span class="brand-mark" role="img" aria-label="Xpress"></span></div><p><span data-i18n="developed">Desenvolvido por</span> <a href="https://mathrick.com.br" target="_blank" rel="noopener noreferrer">MATHRICK LAB</a></p></footer>
+    <footer><div class="signature"><span class="brand-mark" role="img" aria-label="xpress"></span></div><p><span data-i18n="developed">Desenvolvido por</span> <a href="https://mathrick.com.br" target="_blank" rel="noopener noreferrer">MATHRICK LAB</a></p></footer>
   </main>
   <script src="i18n.js"></script><script src="intro.js"></script><script src="game.js"></script>
 </body>
